@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 
 	"github.com/kshitij-nehete/astro-report/internal/handler"
@@ -16,14 +17,18 @@ type HTTPServer struct {
 	server *http.Server
 }
 
-func NewHTTPServer(port string, logger *zap.Logger) *HTTPServer {
+func NewHTTPServer(
+	port string,
+	logger *zap.Logger,
+	db *mongo.Database,
+) *HTTPServer {
 
 	r := chi.NewRouter()
 
 	r.Use(middleware.RecoveryMiddleware(logger))
 	r.Use(middleware.LoggingMiddleware(logger))
 
-	r.Get("/health", handler.HealthHandler)
+	r.Get("/health", handler.HealthHandler(db))
 
 	srv := &http.Server{
 		Addr:         ":" + port,
