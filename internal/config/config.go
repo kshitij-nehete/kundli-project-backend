@@ -9,6 +9,8 @@ import (
 type Config struct {
 	Port        string
 	Environment string
+	MongoURI    string
+	Database    string
 }
 
 func LoadConfig() *Config {
@@ -16,10 +18,14 @@ func LoadConfig() *Config {
 
 	port := getEnv("PORT", "8080")
 	env := getEnv("ENV", "development")
+	mongoURI := getEnv("MONGO_URI", "mongodb://mongo:27017")
+	dbName := getEnv("MONGO_DB", "astro")
 
 	return &Config{
 		Port:        port,
 		Environment: env,
+		MongoURI:    mongoURI,
+		Database:    dbName,
 	}
 }
 
