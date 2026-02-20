@@ -1,0 +1,9 @@
+# Environment variables
+.env
+
+# Docker
+*.log
+docker-data/
+
+# IDE
+.vscode/
