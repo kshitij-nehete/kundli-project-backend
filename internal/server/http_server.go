@@ -11,6 +11,8 @@ import (
 
 	"github.com/kshitij-nehete/astro-report/internal/handler"
 	"github.com/kshitij-nehete/astro-report/internal/middleware"
+	"github.com/kshitij-nehete/astro-report/internal/repository"
+	"github.com/kshitij-nehete/astro-report/internal/usecase"
 )
 
 type HTTPServer struct {
@@ -28,7 +30,17 @@ func NewHTTPServer(
 	r.Use(middleware.RecoveryMiddleware(logger))
 	r.Use(middleware.LoggingMiddleware(logger))
 
+	// Initialize repositories
+	userRepo := repository.NewMongoUserRepository(db)
+
+	// Initialize usecases
+	authUsecase := usecase.NewAuthUsecase(userRepo)
+
+	// Initialize handlers
+	authHandler := handler.NewAuthHandler(authUsecase)
+
 	r.Get("/health", handler.HealthHandler(db))
+	r.Post("/auth/register", authHandler.Register)
 
 	srv := &http.Server{
 		Addr:         ":" + port,
