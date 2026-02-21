@@ -54,3 +54,26 @@ func (u *AuthUsecase) Register(
 
 	return u.userRepo.Create(ctx, user)
 }
+
+func (u *AuthUsecase) Login(
+	ctx context.Context,
+	email string,
+	password string,
+) (*domain.User, error) {
+
+	user, err := u.userRepo.FindByEmail(ctx, email)
+	if err != nil {
+		return nil, errors.New("invalid credentials")
+	}
+
+	err = bcrypt.CompareHashAndPassword(
+		[]byte(user.PasswordHash),
+		[]byte(password),
+	)
+
+	if err != nil {
+		return nil, errors.New("invalid credentials")
+	}
+
+	return user, nil
+}
