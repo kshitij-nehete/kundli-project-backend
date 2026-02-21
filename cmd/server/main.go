@@ -37,7 +37,7 @@ func main() {
 	}
 	defer log.Sync()
 
-	httpServer := server.NewHTTPServer(cfg.Port, log, db)
+	httpServer := server.NewHTTPServer(cfg.Port, log, db, cfg)
 
 	go func() {
 		log.Info("server starting", zap.String("port", cfg.Port))

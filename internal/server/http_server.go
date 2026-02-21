@@ -9,6 +9,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 
+	"github.com/kshitij-nehete/astro-report/internal/auth"
+	"github.com/kshitij-nehete/astro-report/internal/config"
 	"github.com/kshitij-nehete/astro-report/internal/handler"
 	"github.com/kshitij-nehete/astro-report/internal/middleware"
 	"github.com/kshitij-nehete/astro-report/internal/repository"
@@ -23,6 +25,7 @@ func NewHTTPServer(
 	port string,
 	logger *zap.Logger,
 	db *mongo.Database,
+	cfg *config.Config,
 ) *HTTPServer {
 
 	r := chi.NewRouter()
@@ -36,11 +39,30 @@ func NewHTTPServer(
 	// Initialize usecases
 	authUsecase := usecase.NewAuthUsecase(userRepo)
 
+	// Initialize JWT service
+	jwtService := auth.NewJWTService(cfg.JWTSecret)
+
 	// Initialize handlers
-	authHandler := handler.NewAuthHandler(authUsecase)
+	authHandler := handler.NewAuthHandler(authUsecase, jwtService)
 
 	r.Get("/health", handler.HealthHandler(db))
 	r.Post("/auth/register", authHandler.Register)
+	r.Post("/auth/login", authHandler.Login)
+
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.JWTMiddleware(jwtService))
+
+		r.Get("/auth/me", func(w http.ResponseWriter, r *http.Request) {
+
+			userID, ok := r.Context().Value(middleware.UserIDKey).(string)
+			if !ok {
+				http.Error(w, "invalid context user", http.StatusUnauthorized)
+				return
+			}
+
+			w.Write([]byte("Authenticated user ID: " + userID))
+		})
+	})
 
 	srv := &http.Server{
 		Addr:         ":" + port,
