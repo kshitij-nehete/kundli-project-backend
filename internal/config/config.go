@@ -11,6 +11,7 @@ type Config struct {
 	Environment string
 	MongoURI    string
 	Database    string
+	JWTSecret   string
 }
 
 func LoadConfig() *Config {
@@ -20,12 +21,14 @@ func LoadConfig() *Config {
 	env := getEnv("ENV", "development")
 	mongoURI := getEnv("MONGO_URI", "mongodb://mongo:27017")
 	dbName := getEnv("MONGO_DB", "astro")
+	jwtSecret := getEnv("JWT_SECRET", "supersecretkey")
 
 	return &Config{
 		Port:        port,
 		Environment: env,
 		MongoURI:    mongoURI,
 		Database:    dbName,
+		JWTSecret:   jwtSecret,
 	}
 }
 
