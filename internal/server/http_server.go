@@ -14,6 +14,7 @@ import (
 	"github.com/kshitij-nehete/astro-report/internal/handler"
 	"github.com/kshitij-nehete/astro-report/internal/middleware"
 	"github.com/kshitij-nehete/astro-report/internal/repository"
+	"github.com/kshitij-nehete/astro-report/internal/response"
 	"github.com/kshitij-nehete/astro-report/internal/usecase"
 )
 
@@ -39,6 +40,10 @@ func NewHTTPServer(
 	// Initialize repositories
 	userRepo := repository.NewMongoUserRepository(db)
 
+	reportRepo := repository.NewMongoReportRepository(db)
+	reportUsecase := usecase.NewReportUsecase(reportRepo, userRepo)
+	reportHandler := handler.NewReportHandler(reportUsecase)
+
 	// Initialize usecases
 	authUsecase := usecase.NewAuthUsecase(userRepo)
 
@@ -59,12 +64,14 @@ func NewHTTPServer(
 
 			userID, ok := r.Context().Value(middleware.UserIDKey).(string)
 			if !ok {
-				handler.WriteJSONError(w, http.StatusUnauthorized, "invalid context user")
+				response.WriteJSONError(w, http.StatusUnauthorized, "invalid context user")
 				return
 			}
 
 			w.Write([]byte("Authenticated user ID: " + userID))
 		})
+
+		r.Post("/reports", reportHandler.Create)
 	})
 
 	srv := &http.Server{

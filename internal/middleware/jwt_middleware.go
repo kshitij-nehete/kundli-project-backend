@@ -7,7 +7,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/kshitij-nehete/astro-report/internal/auth"
-	"github.com/kshitij-nehete/astro-report/internal/handler"
+	"github.com/kshitij-nehete/astro-report/internal/response"
 )
 
 type contextKey string
@@ -23,30 +23,30 @@ func JWTMiddleware(jwtService *auth.JWTService) func(http.Handler) http.Handler 
 			authHeader := r.Header.Get("Authorization")
 
 			if authHeader == "" {
-				handler.WriteJSONError(w, http.StatusUnauthorized, "missing token")
+				response.WriteJSONError(w, http.StatusUnauthorized, "missing token")
 				return
 			}
 
 			parts := strings.Split(authHeader, " ")
 			if len(parts) != 2 {
-				handler.WriteJSONError(w, http.StatusUnauthorized, "invalid token format")
+				response.WriteJSONError(w, http.StatusUnauthorized, "invalid token format")
 				return
 			}
 
 			token, err := jwtService.ValidateToken(parts[1])
 			if err != nil || !token.Valid {
-				handler.WriteJSONError(w, http.StatusUnauthorized, "invalid token")
+				response.WriteJSONError(w, http.StatusUnauthorized, "invalid token")
 				return
 			}
 			claims, ok := token.Claims.(jwt.MapClaims)
 			if !ok {
-				handler.WriteJSONError(w, http.StatusUnauthorized, "invalid token claims")
+				response.WriteJSONError(w, http.StatusUnauthorized, "invalid token claims")
 				return
 			}
 
 			userID, ok := claims["user_id"].(string)
 			if !ok {
-				handler.WriteJSONError(w, http.StatusUnauthorized, "invalid token payload")
+				response.WriteJSONError(w, http.StatusUnauthorized, "invalid token payload")
 				return
 			}
 

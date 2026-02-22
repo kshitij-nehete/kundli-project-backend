@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"runtime/debug"
 
-	"github.com/kshitij-nehete/astro-report/internal/handler"
+	"github.com/kshitij-nehete/astro-report/internal/response"
 	"go.uber.org/zap"
 )
 
@@ -18,7 +18,7 @@ func RecoveryMiddleware(logger *zap.Logger) func(http.Handler) http.Handler {
 						zap.ByteString("stack", debug.Stack()),
 					)
 
-					handler.WriteJSONError(w, http.StatusInternalServerError, "internal server error")
+					response.WriteJSONError(w, http.StatusInternalServerError, "internal server error")
 				}
 			}()
 			next.ServeHTTP(w, r)
