@@ -16,7 +16,7 @@ func HealthHandler(db *mongo.Database) http.HandlerFunc {
 
 		err := db.Client().Ping(ctx, nil)
 		if err != nil {
-			http.Error(w, "database unreachable", http.StatusServiceUnavailable)
+			WriteJSONError(w, http.StatusServiceUnavailable, "database unreachable")
 			return
 		}
 

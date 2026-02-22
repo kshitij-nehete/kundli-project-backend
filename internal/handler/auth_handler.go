@@ -36,12 +36,12 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	decoder.DisallowUnknownFields()
 
 	if err := decoder.Decode(&req); err != nil {
-		http.Error(w, "invalid request payload", http.StatusBadRequest)
+		WriteJSONError(w, http.StatusBadRequest, "invalid request payload")
 		return
 	}
 
 	if err := h.validator.Struct(req); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		WriteJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -53,7 +53,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		WriteJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -69,12 +69,12 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	decoder.DisallowUnknownFields()
 
 	if err := decoder.Decode(&req); err != nil {
-		http.Error(w, "invalid request payload", http.StatusBadRequest)
+		WriteJSONError(w, http.StatusBadRequest, "invalid request payload")
 		return
 	}
 
 	if err := h.validator.Struct(req); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		WriteJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -85,13 +85,13 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+		WriteJSONError(w, http.StatusUnauthorized, err.Error())
 		return
 	}
 
 	token, err := h.jwtService.GenerateToken(user.ID, user.Email)
 	if err != nil {
-		http.Error(w, "failed to generate token", http.StatusInternalServerError)
+		WriteJSONError(w, http.StatusInternalServerError, "failed to generate token")
 		return
 	}
 
