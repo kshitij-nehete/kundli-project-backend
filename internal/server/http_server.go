@@ -30,8 +30,11 @@ func NewHTTPServer(
 
 	r := chi.NewRouter()
 
+	r.Use(middleware.RequestIDMiddleware)
+	r.Use(middleware.SecurityHeadersMiddleware)
 	r.Use(middleware.RecoveryMiddleware(logger))
 	r.Use(middleware.LoggingMiddleware(logger))
+	r.Use(middleware.RateLimitMiddleware)
 
 	// Initialize repositories
 	userRepo := repository.NewMongoUserRepository(db)
@@ -56,7 +59,7 @@ func NewHTTPServer(
 
 			userID, ok := r.Context().Value(middleware.UserIDKey).(string)
 			if !ok {
-				http.Error(w, "invalid context user", http.StatusUnauthorized)
+				handler.WriteJSONError(w, http.StatusUnauthorized, "invalid context user")
 				return
 			}
 

@@ -17,7 +17,10 @@ func LoggingMiddleware(logger *zap.Logger) func(http.Handler) http.Handler {
 
 			duration := time.Since(start)
 
+			requestID, _ := r.Context().Value(RequestIDKey).(string)
+
 			logger.Info("incoming request",
+				zap.String("request_id", requestID),
 				zap.String("method", r.Method),
 				zap.String("path", r.URL.Path),
 				zap.Duration("duration", duration),

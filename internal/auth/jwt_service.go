@@ -32,6 +32,12 @@ func (j *JWTService) GenerateToken(userID string, email string) (string, error) 
 func (j *JWTService) ValidateToken(tokenString string) (*jwt.Token, error) {
 
 	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+
+		// Enforce HMAC signing method (prevents algorithm substitution attack)
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, jwt.ErrTokenSignatureInvalid
+		}
+
 		return []byte(j.secret), nil
 	})
 }
