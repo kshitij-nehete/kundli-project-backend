@@ -8,6 +8,7 @@ import (
 
 	"github.com/kshitij-nehete/astro-report/internal/auth"
 	"github.com/kshitij-nehete/astro-report/internal/handler/dto"
+	"github.com/kshitij-nehete/astro-report/internal/response"
 	"github.com/kshitij-nehete/astro-report/internal/usecase"
 )
 
@@ -36,12 +37,12 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	decoder.DisallowUnknownFields()
 
 	if err := decoder.Decode(&req); err != nil {
-		WriteJSONError(w, http.StatusBadRequest, "invalid request payload")
+		response.WriteJSONError(w, http.StatusBadRequest, "invalid request payload")
 		return
 	}
 
 	if err := h.validator.Struct(req); err != nil {
-		WriteJSONError(w, http.StatusBadRequest, err.Error())
+		response.WriteJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -53,7 +54,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err != nil {
-		WriteJSONError(w, http.StatusBadRequest, err.Error())
+		response.WriteJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -69,12 +70,12 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	decoder.DisallowUnknownFields()
 
 	if err := decoder.Decode(&req); err != nil {
-		WriteJSONError(w, http.StatusBadRequest, "invalid request payload")
+		response.WriteJSONError(w, http.StatusBadRequest, "invalid request payload")
 		return
 	}
 
 	if err := h.validator.Struct(req); err != nil {
-		WriteJSONError(w, http.StatusBadRequest, err.Error())
+		response.WriteJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -85,13 +86,13 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err != nil {
-		WriteJSONError(w, http.StatusUnauthorized, err.Error())
+		response.WriteJSONError(w, http.StatusUnauthorized, err.Error())
 		return
 	}
 
 	token, err := h.jwtService.GenerateToken(user.ID, user.Email)
 	if err != nil {
-		WriteJSONError(w, http.StatusInternalServerError, "failed to generate token")
+		response.WriteJSONError(w, http.StatusInternalServerError, "failed to generate token")
 		return
 	}
 

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/kshitij-nehete/astro-report/internal/handler"
+	"github.com/kshitij-nehete/astro-report/internal/response"
 	"golang.org/x/time/rate"
 )
 
@@ -37,7 +37,7 @@ func RateLimitMiddleware(next http.Handler) http.Handler {
 		limiter := getVisitor(ip)
 
 		if !limiter.Allow() {
-			handler.WriteJSONError(w, http.StatusTooManyRequests, "rate limit exceeded")
+			response.WriteJSONError(w, http.StatusTooManyRequests, "rate limit exceeded")
 			return
 		}
 

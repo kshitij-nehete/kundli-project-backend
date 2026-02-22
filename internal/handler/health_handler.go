@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/kshitij-nehete/astro-report/internal/response"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -16,7 +17,7 @@ func HealthHandler(db *mongo.Database) http.HandlerFunc {
 
 		err := db.Client().Ping(ctx, nil)
 		if err != nil {
-			WriteJSONError(w, http.StatusServiceUnavailable, "database unreachable")
+			response.WriteJSONError(w, http.StatusServiceUnavailable, "database unreachable")
 			return
 		}
 
