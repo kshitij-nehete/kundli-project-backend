@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 
+	"github.com/kshitij-nehete/astro-report/internal/ai"
 	"github.com/kshitij-nehete/astro-report/internal/auth"
 	"github.com/kshitij-nehete/astro-report/internal/config"
 	"github.com/kshitij-nehete/astro-report/internal/handler"
@@ -43,6 +44,25 @@ func NewHTTPServer(
 	reportRepo := repository.NewMongoReportRepository(db)
 	reportUsecase := usecase.NewReportUsecase(reportRepo, userRepo)
 	reportHandler := handler.NewReportHandler(reportUsecase)
+
+	// ---------------- AI Wiring ----------------
+
+	agentsConfig, err := ai.LoadAgentsConfig("internal/ai/prompts/agents.yaml")
+	if err != nil {
+		logger.Fatal("failed to load AI config", zap.Error(err))
+	}
+
+	llmClient := &ai.StubLLMClient{}
+
+	var agents []ai.Agent
+	for _, cfg := range agentsConfig.Agents {
+		agents = append(agents, &ai.ConfigurableAgent{
+			Config:    cfg,
+			LLMClient: llmClient,
+		})
+	}
+
+	// orchestrator := ai.NewOrchestrator(agents)
 
 	// Initialize usecases
 	authUsecase := usecase.NewAuthUsecase(userRepo)
