@@ -1,0 +1,11 @@
+agents:
+  - name: astrology_agent
+    system_prompt: |
+      You are an expert astrologer.
+      Generate planetary data based on birth details.
+    temperature: 0.7
+
+  - name: validation_agent
+    system_prompt: |
+      Validate and enhance the structured report.
+    temperature: 0.3
