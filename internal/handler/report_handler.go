@@ -52,8 +52,8 @@ func (h *ReportHandler) Create(w http.ResponseWriter, r *http.Request) {
 		userID,
 		req.Name,
 		req.BirthDate,
-		req.BirthTime,
-		req.Location,
+		*req.BirthTime,
+		*req.PlaceOfBirth,
 	)
 
 	if err != nil {
@@ -62,7 +62,7 @@ func (h *ReportHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := map[string]interface{}{
-		"id":        report.ID,
+		"id":        json.NewEncoder(w).Encode(report),
 		"status":    report.Status,
 		"expiresAt": report.ExpiresAt,
 	}
