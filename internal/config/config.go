@@ -7,11 +7,14 @@ import (
 )
 
 type Config struct {
-	Port        string
-	Environment string
-	MongoURI    string
-	Database    string
-	JWTSecret   string
+	Port         string
+	Environment  string
+	MongoURI     string
+	Database     string
+	JWTSecret    string
+	OpenAIAPIKey string
+	OpenAIURL    string
+	OpenAIModel  string
 }
 
 func LoadConfig() *Config {
@@ -22,13 +25,19 @@ func LoadConfig() *Config {
 	mongoURI := getEnv("MONGO_URI", "mongodb://mongo:27017")
 	dbName := getEnv("MONGO_DB", "astro")
 	jwtSecret := getEnv("JWT_SECRET", "supersecretkey")
+	apiKey := getEnv("OPENAI_API_KEY", "")
+	apiURL := getEnv("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
+	model := getEnv("OPENAI_MODEL", "gpt-4o-mini")
 
 	return &Config{
-		Port:        port,
-		Environment: env,
-		MongoURI:    mongoURI,
-		Database:    dbName,
-		JWTSecret:   jwtSecret,
+		Port:         port,
+		Environment:  env,
+		MongoURI:     mongoURI,
+		Database:     dbName,
+		JWTSecret:    jwtSecret,
+		OpenAIAPIKey: apiKey,
+		OpenAIURL:    apiURL,
+		OpenAIModel:  model,
 	}
 }
 
