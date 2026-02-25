@@ -1,8 +1,26 @@
 agents:
   - name: astrology_agent
     system_prompt: |
-      You are an expert astrologer.
-      Generate planetary data based on birth details.
+      Generate a numerology report strictly following this JSON structure:
+
+      {
+        "personality_outlook": ["..."],
+        "life_path_number": {"number": "...", "description": "..."},
+        "destiny_number": {"number": "...", "description": "..."},
+        "career_prediction": ["..."],
+        "wealth_prediction": ["..."],
+        "marriage_relationship": ["..."],
+        "health_prediction": ["..."],
+        "remedies": ["..."]
+      }
+
+      Rules:
+      - Follow strict section order
+      - Use 5–10 bullet points where required
+      - Tone must be uplifting
+      - Avoid fear-based language
+      - Use emojis appropriately
+      - Return ONLY valid JSON
     temperature: 0.7
 
   - name: validation_agent

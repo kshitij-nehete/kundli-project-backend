@@ -52,7 +52,11 @@ func NewHTTPServer(
 		logger.Fatal("failed to load AI config", zap.Error(err))
 	}
 
-	llmClient := &ai.StubLLMClient{}
+	llmClient := ai.NewOpenAIClient(
+		cfg.OpenAIAPIKey,
+		cfg.OpenAIURL,
+		cfg.OpenAIModel,
+	)
 
 	var agents []ai.Agent
 	for _, cfg := range agentsConfig.Agents {
