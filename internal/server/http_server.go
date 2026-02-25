@@ -42,12 +42,10 @@ func NewHTTPServer(
 	userRepo := repository.NewMongoUserRepository(db)
 
 	reportRepo := repository.NewMongoReportRepository(db)
-	reportUsecase := usecase.NewReportUsecase(reportRepo, userRepo)
-	reportHandler := handler.NewReportHandler(reportUsecase)
 
 	// ---------------- AI Wiring ----------------
 
-	agentsConfig, err := ai.LoadAgentsConfig("internal/ai/prompts/agents.yaml")
+	agentsConfig, err := ai.LoadAgentsConfig()
 	if err != nil {
 		logger.Fatal("failed to load AI config", zap.Error(err))
 	}
@@ -66,7 +64,14 @@ func NewHTTPServer(
 		})
 	}
 
-	// orchestrator := ai.NewOrchestrator(agents)
+	orchestrator := ai.NewOrchestrator(agents)
+
+	reportUsecase := usecase.NewReportUsecase(
+		reportRepo,
+		userRepo,
+		orchestrator,
+	)
+	reportHandler := handler.NewReportHandler(reportUsecase)
 
 	// Initialize usecases
 	authUsecase := usecase.NewAuthUsecase(userRepo)

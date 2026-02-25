@@ -1,14 +1,17 @@
 package ai
 
 import (
-	"os"
+	"embed"
 
 	"gopkg.in/yaml.v3"
 )
 
-func LoadAgentsConfig(path string) (*AgentsFile, error) {
+//go:embed prompts/agents.yaml
+var embeddedFiles embed.FS
 
-	data, err := os.ReadFile(path)
+func LoadAgentsConfig() (*AgentsFile, error) {
+
+	data, err := embeddedFiles.ReadFile("prompts/agents.yaml")
 	if err != nil {
 		return nil, err
 	}
