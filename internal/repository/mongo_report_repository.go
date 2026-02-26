@@ -34,3 +34,16 @@ func (r *MongoReportRepository) CountByUser(ctx context.Context, userID string) 
 		"user_id": userID,
 	})
 }
+
+func CreateReportIndexes(db *mongo.Database) error {
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	indexModel := mongo.IndexModel{
+		Keys: bson.D{{Key: "expires_at", Value: 1}},
+	}
+
+	_, err := db.Collection("reports").Indexes().CreateOne(ctx, indexModel)
+	return err
+}

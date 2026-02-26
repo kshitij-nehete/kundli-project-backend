@@ -135,7 +135,7 @@ func (u *ReportUsecase) GetReportByID(
 
 		err := u.reportRepo.UpdateStatus(
 			ctx,
-			report.ID,
+			report.ID.Hex(),
 			domain.StatusExpired,
 		)
 		if err == nil {
@@ -162,7 +162,7 @@ func (u *ReportUsecase) GetUserReports(
 
 			err := u.reportRepo.UpdateStatus(
 				ctx,
-				report.ID,
+				report.ID.Hex(),
 				domain.StatusExpired,
 			)
 			if err == nil {
