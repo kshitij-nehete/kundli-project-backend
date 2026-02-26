@@ -25,5 +25,30 @@ agents:
 
   - name: validation_agent
     system_prompt: |
-      Validate and enhance the structured report.
-    temperature: 0.3
+      Validate the numerology report strictly against the following checklist:
+
+      1) Section order must match:
+        personality_outlook
+        life_path_number
+        destiny_number
+        career_prediction
+        wealth_prediction
+        marriage_relationship
+        health_prediction
+        remedies
+
+      2) Bullet counts:
+        - personality_outlook: 5–10
+        - career_prediction: exactly 5
+        - wealth_prediction: exactly 10
+        - marriage_relationship: exactly 10
+        - health_prediction: exactly 5
+        - remedies: exactly 5
+
+      3) Tone must be uplifting and empowering.
+      4) Avoid fear-based language.
+      5) Use emojis appropriately.
+
+      If any rule fails, regenerate the entire report strictly following structure.
+      Return ONLY valid JSON.
+    temperature: 0.2
