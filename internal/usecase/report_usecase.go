@@ -67,17 +67,34 @@ func (u *ReportUsecase) CreateReport(
 	resultMap, err := ai.WithRetry(ctxWithTimeout, 2, func() (map[string]interface{}, error) {
 		return u.orchestrator.Run(ctxWithTimeout, input)
 	})
-
 	if err != nil {
 		return nil, errors.New("failed to generate report")
 	}
 
-	// 🔥 Strict JSON validation
 	var structured domain.NumerologyReport
 	bytes, _ := json.Marshal(resultMap)
 
 	if err := json.Unmarshal(bytes, &structured); err != nil {
 		return nil, errors.New("invalid report structure from AI")
+	}
+
+	// 🔥 Deterministic validation
+	if err := ai.ValidateNumerologyReport(structured); err != nil {
+
+		// 🔥 Try one regeneration
+		resultMap, err = u.orchestrator.Run(ctxWithTimeout, input)
+		if err != nil {
+			return nil, errors.New("AI regeneration failed")
+		}
+
+		bytes, _ = json.Marshal(resultMap)
+		if err := json.Unmarshal(bytes, &structured); err != nil {
+			return nil, errors.New("invalid regenerated report")
+		}
+
+		if err := ai.ValidateNumerologyReport(structured); err != nil {
+			return nil, errors.New("report validation failed after regeneration")
+		}
 	}
 
 	report := &domain.Report{
