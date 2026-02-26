@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
 
 	"github.com/kshitij-nehete/astro-report/internal/handler/dto"
@@ -69,4 +70,44 @@ func (h *ReportHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
+}
+
+func (h *ReportHandler) GetUserReports(w http.ResponseWriter, r *http.Request) {
+
+	userID, ok := r.Context().Value(middleware.UserIDKey).(string)
+	if !ok {
+		response.WriteJSONError(w, http.StatusUnauthorized, "invalid user context")
+		return
+	}
+
+	reports, err := h.reportUsecase.GetUserReports(r.Context(), userID)
+	if err != nil {
+		response.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	json.NewEncoder(w).Encode(reports)
+}
+
+func (h *ReportHandler) GetReportByID(w http.ResponseWriter, r *http.Request) {
+
+	userID, ok := r.Context().Value(middleware.UserIDKey).(string)
+	if !ok {
+		response.WriteJSONError(w, http.StatusUnauthorized, "invalid user context")
+		return
+	}
+
+	reportID := chi.URLParam(r, "id")
+
+	report, err := h.reportUsecase.GetReportByID(
+		r.Context(),
+		userID,
+		reportID,
+	)
+	if err != nil {
+		response.WriteJSONError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	json.NewEncoder(w).Encode(report)
 }
