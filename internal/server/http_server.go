@@ -85,6 +85,8 @@ func NewHTTPServer(
 	r.Get("/health", handler.HealthHandler(db))
 	r.Post("/auth/register", authHandler.Register)
 	r.Post("/auth/login", authHandler.Login)
+	r.Get("/reports", reportHandler.GetUserReports)
+	r.Get("/reports/{id}", reportHandler.GetReportByID)
 
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.JWTMiddleware(jwtService))

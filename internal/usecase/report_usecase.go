@@ -114,3 +114,62 @@ func (u *ReportUsecase) CreateReport(
 
 	return report, nil
 }
+
+func (u *ReportUsecase) GetReportByID(
+	ctx context.Context,
+	userID string,
+	reportID string,
+) (*domain.Report, error) {
+
+	report, err := u.reportRepo.FindByID(ctx, reportID)
+	if err != nil {
+		return nil, err
+	}
+
+	if report.UserID != userID {
+		return nil, errors.New("unauthorized access")
+	}
+
+	// 🔥 Expiry enforcement
+	if report.IsExpired() && report.Status != domain.StatusExpired {
+
+		err := u.reportRepo.UpdateStatus(
+			ctx,
+			report.ID,
+			domain.StatusExpired,
+		)
+		if err == nil {
+			report.Status = domain.StatusExpired
+		}
+	}
+
+	return report, nil
+}
+
+func (u *ReportUsecase) GetUserReports(
+	ctx context.Context,
+	userID string,
+) ([]*domain.Report, error) {
+
+	reports, err := u.reportRepo.FindByUser(ctx, userID, 5)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, report := range reports {
+
+		if report.IsExpired() && report.Status != domain.StatusExpired {
+
+			err := u.reportRepo.UpdateStatus(
+				ctx,
+				report.ID,
+				domain.StatusExpired,
+			)
+			if err == nil {
+				report.Status = domain.StatusExpired
+			}
+		}
+	}
+
+	return reports, nil
+}

@@ -25,3 +25,7 @@ type Report struct {
 	ExpiresAt       time.Time         `bson:"expires_at"`
 	NumerologyData  *NumerologyReport `bson:"numerology_data,omitempty"`
 }
+
+func (r *Report) IsExpired() bool {
+	return time.Now().After(r.ExpiresAt)
+}
