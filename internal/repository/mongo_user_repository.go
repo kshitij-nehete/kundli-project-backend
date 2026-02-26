@@ -7,6 +7,7 @@ import (
 
 	"github.com/kshitij-nehete/astro-report/internal/domain"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -50,9 +51,14 @@ func (r *MongoReportRepository) UpdateStatus(
 	status domain.ReportStatus,
 ) error {
 
-	_, err := r.collection.UpdateByID(
+	objectID, err := primitive.ObjectIDFromHex(reportID)
+	if err != nil {
+		return err
+	}
+
+	_, err = r.collection.UpdateByID(
 		ctx,
-		reportID,
+		objectID,
 		bson.M{"$set": bson.M{"status": status}},
 	)
 	return err
@@ -63,11 +69,16 @@ func (r *MongoReportRepository) FindByID(
 	reportID string,
 ) (*domain.Report, error) {
 
+	objectID, err := primitive.ObjectIDFromHex(reportID)
+	if err != nil {
+		return nil, err
+	}
+
 	var report domain.Report
 
-	err := r.collection.FindOne(
+	err = r.collection.FindOne(
 		ctx,
-		bson.M{"_id": reportID},
+		bson.M{"_id": objectID},
 	).Decode(&report)
 
 	if err != nil {

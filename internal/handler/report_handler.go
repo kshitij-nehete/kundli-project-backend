@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
 
+	"github.com/kshitij-nehete/astro-report/internal/domain"
 	"github.com/kshitij-nehete/astro-report/internal/handler/dto"
 	"github.com/kshitij-nehete/astro-report/internal/middleware"
 	"github.com/kshitij-nehete/astro-report/internal/response"
@@ -86,7 +87,19 @@ func (h *ReportHandler) GetUserReports(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(reports)
+	var summaries []dto.ReportSummaryResponse
+
+	for _, report := range reports {
+		summaries = append(summaries, dto.ReportSummaryResponse{
+			ID:        report.ID.Hex(),
+			Name:      report.Name,
+			CreatedAt: report.CreatedAt,
+			ExpiresAt: report.ExpiresAt,
+			Status:    string(report.Status),
+		})
+	}
+
+	json.NewEncoder(w).Encode(summaries)
 }
 
 func (h *ReportHandler) GetReportByID(w http.ResponseWriter, r *http.Request) {
@@ -109,5 +122,11 @@ func (h *ReportHandler) GetReportByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if report.Status == domain.StatusExpired {
+		// You can optionally blank numerology data
+		// but we keep it for now and let frontend blur it.
+	}
+
 	json.NewEncoder(w).Encode(report)
+
 }
